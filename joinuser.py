@@ -19,20 +19,15 @@ class User:
     def __init__(self):
         self.id = User.id_inc
         User.id_inc += 1
-        self.name = ''
-        self.surname = ''
-        self.nickname = ''
-        self.password = ''
-        self.mail = ''
-        self.user_reg = 0
-        self.user_auth = 0
-
-    def reg(self):
         self.name = input('Введите имя: ')
         self.surname = input('Введите фамилию: ')
         self.nickname = input('Введите желаемый никнейм: ')
         self.password = input('Введите безопасный пароль: ')
         self.mail = input('Введите почту: ')
+        self.user_reg = 0
+        self.user_auth = 0
+
+    def reg(self):
         print(f"Проверка для пользователя {self.name} для регистрации:")
         if type(self.name) == str and self.name == self.name.capitalize() and type(self.surname) == str and self.surname == self.surname.capitalize():
             print(f'{self.name} прошел проверку имени и фамилии ✅')
