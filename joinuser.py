@@ -13,30 +13,29 @@ cursor.execute('''CREATE TABLE IF NOT EXISTS Users (
 connection.commit()
 connection.close()
 
-
 class User:
-    count = 0
     id_inc = 1
 
-    def __init__(self, name, surname, nickname, password, mail):
+    def __init__(self):
         self.id = User.id_inc
         User.id_inc += 1
-        self.name = name
-        self.surname = surname
-        self.nickname = nickname
-        self.password = password
-        self.mail = mail
-        self.auth = 0
-        User.count += 1
+        self.name = ''
+        self.surname = ''
+        self.nickname = ''
+        self.password = ''
+        self.mail = ''
+        self.user_reg = 0
+        self.user_auth = 0
 
-    @staticmethod
-    def show_count():
-        print(f'Всего попыток регистрации: {User.count}')
-
-    def check(self):
-        print(f"Проверка для пользователя {self.id}:")
+    def reg(self):
+        self.name = input('Введите имя: ')
+        self.surname = input('Введите фамилию: ')
+        self.nickname = input('Введите желаемый никнейм: ')
+        self.password = input('Введите безопасный пароль: ')
+        self.mail = input('Введите почту: ')
+        print(f"Проверка для пользователя {self.name} для регистрации:")
         if type(self.name) == str and self.name == self.name.capitalize() and type(self.surname) == str and self.surname == self.surname.capitalize():
-            print(f'{self.id} прошел проверку имени и фамилии ✅')
+            print(f'{self.name} прошел проверку имени и фамилии ✅')
             connection = sqlite3.connect('auth_users.db')
             cursor = connection.cursor()
             cursor.execute('SELECT nickname FROM Users WHERE nickname = ?', (self.nickname,))
@@ -50,16 +49,16 @@ class User:
                 print(f'Пользователь с почтой {self.mail} уже существует в базе данных ❌')
             else:
                 if len(self.nickname) != 0:
-                    print(f'{self.id} прошел проверку никнейма ✅')
+                    print(f'{self.name} прошел проверку никнейма ✅')
                     if len(self.password) < 8:
-                        print(f'{self.id} не прошел проверку пароля (слишком короткий) ❌')
+                        print(f'{self.name} не прошел проверку пароля (слишком короткий) ❌')
                     elif re.search(r'\d', self.password) is None or re.search(r'[A-Z]', self.password) is None:
-                        print(f'{self.id} не прошел проверку пароля (без цифр и заглавных букв) ❌')
+                        print(f'{self.name} не прошел проверку пароля (без цифр и заглавных букв) ❌')
                     else:
-                        print(f'{self.id} прошел проверку пароля ✅')
+                        print(f'{self.name} прошел проверку пароля ✅')
                         if re.fullmatch(re.compile(r'([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+'), self.mail):
-                            print(f'{self.id} прошел проверку почты ✅ \nПользователь {self.id} успешно зарегистрировался ✅✅✅ ')
-                            self.auth += 1
+                            print(f'{self.name} прошел проверку почты ✅ \nПользователь {self.name} успешно зарегистрировался ✅✅✅ ')
+                            self.user_reg += 1
                             connection = sqlite3.connect('auth_users.db')
                             cursor = connection.cursor()
                             cursor.execute('INSERT INTO Users (name, surname, nickname, password, mail) VALUES (?, ?, ?, ?, ?)',
@@ -68,44 +67,55 @@ class User:
                             connection.close()
                         else:
                             print(
-                                f'{self.id} не прошел проверку почты (некорректный ввод) ❌')
+                                f'{self.name} не прошел проверку почты (некорректный ввод) ❌')
                 else:
                     print(
-                        f'{self.id} не прошел проверку никнейма (Пустое поле ввода) ❌')
+                        f'{self.name} не прошел проверку никнейма (Пустое поле ввода) ❌')
         else:
             print(
-                f'{self.id} не прошел проверку имени и фамилии (Регистр) ❌')
+                f'{self.name} не прошел проверку имени и фамилии (Регистр) ❌')
 
+    def auth(self):
+        mail = input('Введите почту: ')
+        password = input('Введите пароль: ')
+        print(f"Проверка для пользователя для авторизации:")
+        connection = sqlite3.connect('auth_users.db')
+        cursor = connection.cursor()
+        cursor.execute('SELECT password FROM Users WHERE mail = ?', (mail,))
+        already_exist_password = cursor.fetchone()
+        cursor.execute('SELECT mail FROM Users WHERE mail = ?', (mail,))
+        already_exist_mail = cursor.fetchone()
+        connection.close()
+        if already_exist_mail:
+            print(f'Пользователь с почтой существует в базе данных ✅')
+            if already_exist_password:
+                if password == already_exist_password[0]:
+                    print(f'Вы успешно авторизовались ✅')
+                else:
+                    print('Вы ввели неверный пароль')
+            else:
+                print('Пользователя с такой почтой нет в базе данных, пройдите регистрацию пожалуйста')
+        else:
+            print('Пользователя с такой почтой нет в базе данных, пройдите регистрацию пожалуйста')
 
-User1 = User("sarah", "Matrilos", "sarah2002", "123qweQwe__./", "try@mail.ru")
-User2 = User("Travis", "gregoriev", "trasss", "qweyyyQwe", "uiiyu@yandex.ru")
-User3 = User("Larah", "Matrilos", "", "password123", "ertrtert123@gmail.com")
-User4 = User("Eray", "Kalpos", "abccds", "password123", "ertrtert123@gmail.com")
-User5 = User("Sevil", "Retyl", "qwrgdf", "Password123", "ertrtert123@gmail.com")
-User6 = User("Sevil", "Retyl", "fsdfs", "Password123", "ertrtert123@gmail.com")
-User7 = User("Sveta", "Malinuk", "aas", "Password123", "ertrtert123@email.com")
-User8 = User("Artur", "Welkut", "fdfgdsmif", "Password123", "ertrt123@gmail.com")
-User9 = User("Mike", "Feliry", "qwe", "Pass12333333", "mikeqwe@gmail.com")
-User10 = User("Kate", "Lipow", "kate124", "kate124KATE", "kata2000@gmail.com")
-Users = [User1, User2, User3, User4, User5, User6, User7, User8, User9, User10]
+def main():
+    while True:
+        print("Выберите действие:")
+        print("1. Регистрация")
+        print("2. Авторизация")
+        print("3. Выход")
+        choice = input("Введите номер действия: ")
+        
+        if choice == "1":
+            user = User()
+            user.reg()
+        elif choice == "2":
+            user = User()
+            user.auth()
+        elif choice == "3":
+            break
+        else:
+            print("Некорректный ввод, попробуйте снова.")
 
-
-
-def do_check(Users):
-    auths = 0
-    for User in Users:
-        User.check()
-        auths += User.auth
-    print(f'Успешных авторизаций: {auths}')
-
-
-do_check(Users)
-
-connection = sqlite3.connect('auth_users.db')
-cursor = connection.cursor()
-cursor.execute('SELECT * FROM Users')
-authorized_users = cursor.fetchall()
-connection.close()
-for user in authorized_users:
-    print(
-        f'ID: {user[0]}, Имя: {user[1]}, Фамилия: {user[2]}, Никнейм: {user[3]}, Почта: {user[5]} , Пароль: {user[4]}')
+if __name__ == "__main__":
+    main()
