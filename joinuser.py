@@ -1,6 +1,5 @@
 import re
 import sqlite3
-
 connection = sqlite3.connect('auth_users.db')
 cursor = connection.cursor()
 cursor.execute('''CREATE TABLE IF NOT EXISTS Users (
@@ -12,13 +11,20 @@ cursor.execute('''CREATE TABLE IF NOT EXISTS Users (
                     mail TEXT)''')
 connection.commit()
 connection.close()
-
 class User:
     id_inc = 1
-
     def __init__(self):
         self.id = User.id_inc
         User.id_inc += 1
+        self.name = ''
+        self.surname = ''
+        self.nickname = ''
+        self.password = ''
+        self.mail = ''
+        self.user_reg = 0
+        self.user_auth = 0
+
+    def reg(self):
         self.name = input('Введите имя: ')
         self.surname = input('Введите фамилию: ')
         self.nickname = input('Введите желаемый никнейм: ')
@@ -69,7 +75,6 @@ class User:
         else:
             print(
                 f'{self.name} не прошел проверку имени и фамилии (Регистр) ❌')
-
     def auth(self):
         mail = input('Введите почту: ')
         password = input('Введите пароль: ')
@@ -92,7 +97,6 @@ class User:
                 print('Пользователя с такой почтой нет в базе данных, пройдите регистрацию пожалуйста')
         else:
             print('Пользователя с такой почтой нет в базе данных, пройдите регистрацию пожалуйста')
-
 def main():
     while True:
         print("Выберите действие:")
@@ -111,6 +115,5 @@ def main():
             break
         else:
             print("Некорректный ввод, попробуйте снова.")
-
 if __name__ == "__main__":
     main()
